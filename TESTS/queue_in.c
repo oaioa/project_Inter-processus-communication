@@ -1,27 +1,31 @@
-#include "useful.h"
+#include "../useful.h"
+
+int idBal;
 
 void signal_handler(int signal){
-  printf("Kill received %d !\n"); 
-  exit(0);
+	printf("Kill received  !\n");//message d'entrée de fonction 
+	msgctl(idBal,IPC_RMID,NULL);//suppression bal (avec ID = idBal)
+	exit(0);
+	
 }
 
 
 int main(){
-  signal(SIGINT,signal_handler);
+	signal(SIGINT,signal_handler);
 
-  VOL v1;
-  v1.number = 4;
-  strcpy(v1.destination,"Toulouse");
+	VOL v1;
 
-  int msgflg = IPC_CREAT | 0666;  
+	idBal=msgget(balK,0666|IPC_CREAT);
+	while(1){
+		if((-1)==idBal){
+			printf("Erreur creation boite au lettre\n");
+			exit(1);
+		}	
+		printf("code received : %d \n",msgrcv(idBal,&v1,sizeof(VOL),0,0));
+		printf("%d free for %s \n",v1.number,v1.destination);
+	}
+	return 0;
 
-  int idMes = msgget(balK,msgflg);//creation bal avec droits 660    
-  printf("Message with ID : %d\n",idMes);
-
-  msgsnd(idMes,(void *) & v1,20,0); //message envoyé
-
-  return 0;
-
-  }
+}
 
 

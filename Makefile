@@ -16,12 +16,17 @@ agence: agence.o
 	$(CC) agence.o -o agence $(CFLAGS)
 
 
-ecrivain: ecrivain.o
-	$(CC) $(CC) -c utilisateur.c -o utilisateur.o $(CFLAGS).o -o utilisateur $(CFLAGS)
-
 ecrivain.o: ecrivain.c
-	$(CC) -c utilisateur.c -o utilisateur.o $(CFLAGS)
+	$(CC) -c ecrivain.c -o ecrivain.o $(CFLAGS)
+
+ecrivain: ecrivain.o
+	$(CC) $(CC) -c ecrivain.c -o ecrivain.o $(CFLAGS).o 
+
+
+tests: TESTS
+	make -C TESTS
 
 clean:
-	rm utilisateur
-	rm -rf *.o
+	rm -rf utilisateur agence
+	rm -rf *.o 
+	make clean -C TESTS

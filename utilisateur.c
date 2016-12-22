@@ -22,14 +22,6 @@ int main(){
 
   msgsnd(idMes,(void *) & v1,20,0); //message envoyé
 
-  VOL * shm = (VOL*) shmat (smid, NULL, 0);
-  while(1){
-    int i;
-    for(i = 0 ; i<20 ; i++){
-      shm[i].number=i; 
-      strcpy(shm[i].destination,"TLS");
-    }
-  }
   return 0;
 
   }

@@ -1,37 +1,26 @@
-#include "useful.h"
+#include "../useful.h"
 
 void signal_handler(int signal){
-  printf("Kill received %d !\n"); 
-  // !! pour taile bal sizeof(struct MESSAGE)
-  // il faut faire la somme de chaque composantes indépendamments
-  //
-
-  exit(0);
+	printf("Kill received %d !\n",signal); 
+	exit(0);
 }
 
 
 int main(){
-  VOL v1;
-  v1.number = 4;
-  strcpy(v1.destination,"Toulouse");
-  signal(SIGINT,signal_handler);
+	signal(SIGINT,signal_handler);
+	VOL v1;
+	v1.number = 8;
+	strcpy(v1.destination,"Bonjour");
 
-  int msgflg = IPC_CREAT | 0666;  
-  int idMes = msgget(balK,msgflg);//creation bal avec droits 660    
-  printf("Message with ID : %d\n",idMes);
+	int msgflg =  0666;  
+	int idMes = msgget(balK,msgflg); 
 
-  msgsnd(idMes,(void *) & v1,20,0); //message envoyé
+	printf("Message with ID : %d\n",idMes);
 
-  VOL * shm = (VOL*) shmat (smid, NULL, 0);
-  while(1){
-    int i;
-    for(i = 0 ; i<20 ; i++){
-      shm[i].number=i; 
-      strcpy(shm[i].destination,"TLS");
-    }
-  }
-  return 0;
+	msgsnd(idMes,&v1,sizeof(VOL),0); //message envoyé
 
-  }
+	return 0;
+
+}
 
 
