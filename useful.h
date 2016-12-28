@@ -10,18 +10,27 @@
 #include <sys/ipc.h> //IPC permissions
 #include <string.h> //strcopy ...
 
+//noms de fonctions stylisées
+
+
 typedef struct vol{
   int number;
   int PID;
   char destination[20];
 }VOL;
 
+//tableau destinations
 char* destinations_possible[]={
 	"Toulouse", 
 	"Lyon",
-	"Marseille"
+	"Marseille",
+	"Paris",
+	"Londres",
+	"Madrid",
+	"."
 };
 
+//CLÉS
 key_t balK = 16;
 key_t memK = 32;
 key_t mutexK = 48;

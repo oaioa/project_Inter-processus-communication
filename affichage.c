@@ -26,6 +26,8 @@ int main()
 {
 	signal(SIGINT,signal_handler);
 	signal(SIGQUIT,signal_handler);
+
+	system("clear");
 	int i=0;
 
 	//MUTEX
@@ -50,17 +52,25 @@ int main()
 	printf("Affichage || Attachement mémoire partagée \n");
 
 	while(1){
+		system("clear");
 		down(mutex);
-		printf("Affichage || down mutex\n\n\n");
+		printf("Affichage || down mutex\n");
 		printf("--------------------------------------------------------------------\n");
 		for(i=0;i<20;i++){
-			printf("Affichage || %d : %d places pour %s \n",i,sm_ptr[i].number,sm_ptr[i].destination); 
+			printf("Affichage || %-2d : %-3d places pour %-20s \n",i,sm_ptr[i].number,sm_ptr[i].destination); 
 		}
 		printf("--------------------------------------------------------------------\n");
+		for(i=0;i<20;i++){
+			if(sm_ptr[i].number==0){
+				sm_ptr[i].number = -1;
+				down(sem_id);
+				printf("Affichage || down sem places pour ligne %d \n",i);
+			}
+		}
 		up(mutex);
 		printf("Affichage || up mutex\n");
 		printf("Affichage || sleep 15 s\n");
-		sleep(15);
+		sleep(1);
 	}
 }
 

@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-all: ecrivain.o ecrivain affichage.o affichage agence.o agence utilisateur.o utilisateur 
+all:  test ecrivain.o ecrivain affichage.o affichage agence.o agence utilisateur.o utilisateur 
 
 affichage.o: affichage.c
 	$(CC) -c affichage.c -o affichage.o $(CFLAGS)
@@ -27,11 +27,12 @@ ecrivain.o: ecrivain.c
 ecrivain: ecrivain.o
 	$(CC) ecrivain.o -o ecrivain $(CFLAGS)
 
-
+test: test.c
+	$(CC) test.c -o test $(CFLAGS)	
 tests: TESTS
 	make -C TESTS
 
 clean:
-	rm -rf utilisateur agence ecrivain affichage
+	rm -rf utilisateur agence ecrivain test affichage
 	rm -rf *.o 
 	make clean -C TESTS
