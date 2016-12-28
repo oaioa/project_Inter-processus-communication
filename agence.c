@@ -1,36 +1,48 @@
 #include "useful.h"
+int bal_id;
+int sm_id;
+VOL * sm_ptr;
 
 void signal_handler(int signal){
-  printf("Kill received %d !\n"); 
-  // !! pour taile bal sizeof(struct MESSAGE)
-  // il faut faire la somme de chaque composantes indépendamments
-  //
-  shmctl(memK, IPC_RMID, 0) ;
-  exit(0);
+	if( signal == SIGINT){
+		printf("Agence || SIGINT !\n"); 
+		msgctl(bal_id,IPC_RMID,NULL);
+		printf("Agence || Supression bal \n");
+		shmdt(sm_ptr) ;
+		printf("Agence || détachement mémoire partagé \n");
+		exit(0);
+	}
 }
 
 int main(){
-  VOL vol;
-  signal(SIGINT,signal_handler);
+	signal(SIGINT,signal_handler);
+	VOL vol;
 
-  int msgflg = IPC_CREAT | 0666;  
-  //  int idMes = msgget(balK,msgflg);//creation bal avec droits 660    
-  //  printf("Message with ID : %d\n",idMes);
+	//BAL
+	int bal_flg = IPC_CREAT | 0666;  
+	bal_id = msgget(balK,bal_flg);//creation bal avec droits 660    
+	printf("Agence || Création bal avec ID : %d\n",bal_id);
 
+	//SM
+	int sm_flg = 0666;
+	sm_id = shmget(memK,20*sizeof(VOL),sm_flg);//creation shared memory
+	printf("Agence || Ouverture mémoire partagée avec ID : %d\n",sm_id);
 
-  int smid = shmget(memK,20*sizeof(VOL),msgflg);//creation shared memory
-  VOL * shm;
-  printf("Message with ID : %d\n",smid);
+	sm_ptr = (VOL*) shmat(sm_id, NULL, 0);
+	printf("Agence || Attaché à mémoire partagé \n");
 
-  shm = (VOL*) shmat(smid, NULL, 0);
-  printf("Attaché à mémoire partagé \n");
-  int i;
-  for(i = 0 ; i<20 ; i++){
-    shm[i].number=i;
-    strcpy(shm[i].destination,"TLS");
-  sleep(5);
-  }
-  shmctl(smid,IPC_RMID,0);
+	while(1){
+		msgrcv(bal_id,&vol,sizeof(VOL),0,0);
+		printf("Agence || %d places pour %s \n",vol.number,vol.destination);
+	}
+	/*
+	   int i;
+	   for(i = 0 ; i<20 ; i++){
+	   shm[i].number=i;
+	   strcpy(shm[i].destination,"TLS");
+	   sleep(5);
+	   }
+	   */
 
-  return 0;
+	return 0;
 }

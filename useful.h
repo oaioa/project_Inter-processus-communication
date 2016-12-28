@@ -11,10 +11,16 @@
 #include <string.h> //strcopy ...
 
 typedef struct vol{
-  //int time;
   int number;
+  int PID;
   char destination[20];
 }VOL;
+
+char* destinations_possible[]={
+	"Toulouse", 
+	"Lyon",
+	"Marseille"
+};
 
 key_t balK = 16;
 key_t memK = 32;

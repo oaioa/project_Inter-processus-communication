@@ -1,8 +1,13 @@
 CC=gcc
 CFLAGS=-Wall
-//EXE = utilisateur.o utilisateur
-all: utilisateur.o utilisateur agence.o agence
+all: ecrivain.o ecrivain affichage.o affichage agence.o agence utilisateur.o utilisateur 
 
+affichage.o: affichage.c
+	$(CC) -c affichage.c -o affichage.o $(CFLAGS)
+
+affichage: affichage.o
+	$(CC) affichage.o -o affichage $(CFLAGS)
+	
 utilisateur.o: utilisateur.c
 	$(CC) -c utilisateur.c -o utilisateur.o $(CFLAGS)
 
@@ -20,13 +25,13 @@ ecrivain.o: ecrivain.c
 	$(CC) -c ecrivain.c -o ecrivain.o $(CFLAGS)
 
 ecrivain: ecrivain.o
-	$(CC) $(CC) -c ecrivain.c -o ecrivain.o $(CFLAGS).o 
+	$(CC) ecrivain.o -o ecrivain $(CFLAGS)
 
 
 tests: TESTS
 	make -C TESTS
 
 clean:
-	rm -rf utilisateur agence
+	rm -rf utilisateur agence ecrivain affichage
 	rm -rf *.o 
 	make clean -C TESTS
