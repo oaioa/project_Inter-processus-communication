@@ -1,38 +1,23 @@
 CC=gcc
 CFLAGS=-Wall
-all:  test ecrivain.o ecrivain affichage.o affichage agence.o agence utilisateur.o utilisateur 
+all:  lastminute  ecrivain affichage agence utilisateur 
 
-affichage.o: affichage.c
-	$(CC) -c affichage.c -o affichage.o $(CFLAGS)
-
-affichage: affichage.o
-	$(CC) affichage.o -o affichage $(CFLAGS)
+affichage: affichage.c
+	$(CC) affichage.c -o affichage $(CFLAGS)
 	
-utilisateur.o: utilisateur.c
-	$(CC) -c utilisateur.c -o utilisateur.o $(CFLAGS)
-
-utilisateur: utilisateur.o
-	$(CC) utilisateur.o -o utilisateur $(CFLAGS)
+utilisateur: utilisateur.c
+	$(CC) utilisateur.c -o utilisateur $(CFLAGS)
 	
-agence.o: agence.c
-	$(CC) -c agence.c -o agence.o $(CFLAGS)
+agence: agence.c
+	$(CC) agence.c -o agence $(CFLAGS)
+
+ecrivain: ecrivain.c
+	$(CC) ecrivain.c -o ecrivain $(CFLAGS)
+
+test: lastminute.c
+	$(CC) lastminute.c -o lastminute $(CFLAGS)
 	
-agence: agence.o
-	$(CC) agence.o -o agence $(CFLAGS)
-
-
-ecrivain.o: ecrivain.c
-	$(CC) -c ecrivain.c -o ecrivain.o $(CFLAGS)
-
-ecrivain: ecrivain.o
-	$(CC) ecrivain.o -o ecrivain $(CFLAGS)
-
-test: test.c
-	$(CC) test.c -o test $(CFLAGS)	
-tests: TESTS
-	make -C TESTS
 
 clean:
-	rm -rf utilisateur agence ecrivain test affichage
+	rm -rf utilisateur agence ecrivain lastminute affichage
 	rm -rf *.o 
-	make clean -C TESTS

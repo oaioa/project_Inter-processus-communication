@@ -7,7 +7,7 @@ int dad_pid;
 int mutex_id;
 int mutex;
 
-int sem_id;
+int sem_id;//espace mémoire libre?
 int sem;
 
 int sm_id;
@@ -17,35 +17,34 @@ int quit_count = 0;
 
 void dad_signal_handler(int sig)
 {
-	sleep(1);	
+	sleep(1);
 
 	//^c
 	if(sig==SIGINT){
-		printf("Écrivain || SIGINT \n");	
+		printf("\033[1;31mÉcrivain\033[0m || SIGINT \n");
 		close(descpipe[0]);
 		shmdt(sm_ptr);
-		printf("Écrivain || Détachement mémoire partagée \n");
-		shmctl(sm_id,IPC_RMID,0);
-		printf("Écrivain || Supression mémoire partagée \n");
+		printf("\033[1;31mÉcrivain\033[0m || Détachement mémoire partagée \n");
 		remove_semaphore(mutex_id);
-		printf("Écrivain || Supression mutex \n");
+		printf("\033[1;31mÉcrivain\033[0m || Suppression mutex \n");
 		remove_semaphore(sem_id);
-		printf("Écrivain || Supression sémaphore places \n");		
-		printf("Écrivain || Programme Évrivain arrete\n");
+		printf("\033[1;31mÉcrivain\033[0m || Suppression sémaphore places \n");
+		printf("\033[1;31mÉcrivain\033[0m || Programme Écrivain arrêté\n");
+		sleep(2);//laisse le temps d'afficher
 		exit(0);
 	}
 
 	//^z
 	if(sig==SIGTSTP){
-		printf("Écrivain || SIGTSTP \n");
-		printf("Ecrivain|| appuyer sur entrée \n");
+		printf("\033[1;31mÉcrivain\033[0m || SIGTSTP \n");
+		printf("Ecrivain|| Appuyer sur entrée \n");
 		getchar();
-		printf("Tirage || fin pause \n");
+		printf("Tirage || Fin pause \n");
 	}
 
-	//^'\' 
+	//^'\'
 	if(sig==SIGQUIT){
-		printf("Écrivain || SIGQUIT \n");
+		printf("\033[1;31mÉcrivain\033[0m || SIGQUIT \n");
 		sleep(1);
 	}
 
@@ -54,24 +53,25 @@ void dad_signal_handler(int sig)
 void son_signal_handler(int sig)
 {
 	if(sig==SIGINT){
-		printf("Tirage || SIGINT\n");
+		printf("\033[1;36mTirage\033[0m || SIGINT\n");
 		close(descpipe[1]);
-		printf("Tirage || Programme Tirage arrete\n");
+		printf("\033[1;36mTirage\033[0m || Programme Tirage arrêté\n");
+		sleep(2);
 		exit(0);
 	}
 
 	//^z
 	if(sig==SIGTSTP){
-		printf("Tirage || SIGTSTP \n");
-		printf("Tirage || appuyer sur entrée \n");
+		printf("\033[1;36mTirage\033[0m || SIGTSTP \n");
+		printf("\033[1;36mTirage\033[0m || Appuyer sur entrée \n");
 		getchar();
-		printf("Tirage || fin pause \n");
+		printf("\033[1;36mTirage\033[0m || Fin pause \n");
 
 	}
 
-	//^'\' 
+	//^'\'
 	if(sig==SIGQUIT){
-		printf("Tirage || SIGQUIT \n");
+		printf("\033[1;36mTirage\033[0m || SIGQUIT \n");
 		sleep(1);
 	}
 
@@ -82,24 +82,28 @@ int main(int argc, char **argv)
 
 	if(pipe(descpipe)==-1)
 	{
-		printf("Écrivain || erreur création pipe\n");exit(1);
+		printf("\033[1;31mÉcrivain\033[0m || Erreur création tube\n");exit(1);
 	}
-	printf("Écrivain || création du pipe réussie\n");
+	printf("\033[1;31mÉcrivain\033[0m || Création du tube réussie\n");
 
 	int fork_n=fork();
 	if(fork_n==-1)
 	{
-		printf("Écrivain || erreur création du fils\n");
+		printf("\033[1;31mÉcrivain\033[0m || Erreur création du fils\n");
 		exit(-1);
 	}
 
 	//SEMAPHORE PLACES
-	int sem_flg = 0660|IPC_CREAT;
+	int sem_flg = 0660|IPC_CREAT; //droit d'écriture et de lecture
 	sem_id = semget(sem_placeK,1,sem_flg);
-	printf("Écrivain || création sémaphore (places) avec id %d \n",sem_id);
+	if((-1)==sem_id){
+			printf("\033[1;31mÉcrivain\033[0m || Erreur création sémaphores places !!!\n");
+		exit(1);
+	}
+printf("\033[1;31mÉcrivain\033[0m || Création sémaphore (places) avec id %d \n",sem_id);
 	semctl(sem_id,0,SETVAL,0);
 	sem=semctl(sem_id,0,GETVAL);
-	printf("Écrivain || init sem %d \n",sem);
+	printf("\033[1;31mÉcrivain\033[0m || Initialisation sémaphore %d \n",sem);
 
 	if(fork_n==0) //on est dans le fils (tirage)
 	{
@@ -109,25 +113,26 @@ int main(int argc, char **argv)
 		close(descpipe[0]); // tirage ne s'en sert pas en lecture
 
 		dad_pid=getppid();
-		printf("Tirage || PID of dad %d \n",dad_pid);
+		printf("\033[1;36mTirage\033[0m || PID du père %d \n",dad_pid);
 		VOL new;
 
 		int destinations = 0 ;
-		while(destinations_possible[destinations][0]!= '.'){
+		while(destinations_possible[destinations][0]!='.'){//permet de compter le nombre de destinations dans le tableau
 			destinations++;
 		}
-		printf("Tirage || %d destinations sont desponibles \n",destinations);
+		printf("\033[1;36mTirage\033[0m || %d destinations sont disponibles \n",destinations);
 		int destination_random;
 		while(1)
 		{
-
-			destination_random = rand() % destinations;
-			strcpy((new.destination),(destinations_possible[destination_random]));
-			new.number=rand()%50; //hasard du nombre de places  
-			printf("Tirage || écriture faite %s avec %d \n",(new.destination),new.number);
-			write(descpipe[1],&new,sizeof(VOL));
-			printf("Tirage || wait for 5s\n\n");
 			sleep(1);
+			destination_random = rand() % destinations;//tire au hasard un nombre correspondant à une case du tableau destinations
+			strcpy((new.destination),(destinations_possible[destination_random]));//copie la destination dans une variable
+			new.number=rand()%50; //hasard du nombre de places
+			printf("\033[H\033[2J");//clear
+			printf("\033[1;36mTirage\033[0m || Ecriture faite %s avec %d \n",(new.destination),new.number);
+			write(descpipe[1],&new,sizeof(VOL));//écriture dans le tube
+			printf("\033[1;36mTirage\033[0m || Attendre 10sec\n\n");
+			sleep(10);//un tirage toutes les 10 sec
 		}
 
 	}
@@ -138,55 +143,67 @@ int main(int argc, char **argv)
 		signal(SIGTSTP,dad_signal_handler);
 		signal(SIGQUIT,dad_signal_handler);
 		close(descpipe[1]); // écrivain ne s'en sert pas en écriture
-		tirage_pid = fork_n;	
+		tirage_pid = fork_n;
 		VOL received;
 
 		//MUTEX
-		int mutex_flg = 0660|IPC_CREAT;
+		int mutex_flg = 0660|IPC_CREAT;//droits écriture et lecture
 		mutex_id = semget(mutexK,1,mutex_flg);
-		printf("Écrivain || création mutex avec id %d \n",mutex_id);
+		if((-1)==mutex_id){
+		printf("\033[1;31mÉcrivain\033[0m || Erreur création mutex !!!\n");
+		dad_signal_handler(SIGINT);
+		}
+		printf("\033[1;31mÉcrivain\033[0m || Création mutex avec id %d \n",mutex_id);
 		semctl(mutex_id,0,SETVAL,1);
 		mutex=semctl(mutex_id,0,GETVAL);
-		printf("Écrivain || init mutex %d \n",mutex);
+		printf("\033[1;31mÉcrivain\033[0m || Initialisation mutex %d \n",mutex);
 
 		//SM
-		int sm_flg = IPC_CREAT | 0666;
+		int sm_flg = IPC_CREAT | 0666;//droits écriture et lecture
 		sm_id = shmget(memK,20*sizeof(VOL),sm_flg);
-		printf("Écrivain || Création de la mémoire partagée avec ID : %d \n",sm_id);
-		sm_ptr = (VOL*) shmat(sm_id, NULL,0);
-		printf("Écrivain || Attachement à la mémoire partagée\n");
-		int i;
-		for(i = 0; i<20; i++){
-			sm_ptr[i].number = -1;
+		if((-1)==mutex_id){
+		printf("\033[1;31mÉcrivain\033[0m || Erreur création mémoire partagée !!!\n");
+		dad_signal_handler(SIGINT);
 		}
-		printf("Écrivain || Initialisation  mémoire partagée\n");
+		printf("\033[1;31mÉcrivain\033[0m || Création mémoire partagée avec ID : %d \n",sm_id);
+		sm_ptr = (VOL*) shmat(sm_id, NULL,0);
+		printf("\033[1;31mÉcrivain\033[0m || Attachement à la mémoire partagée\n");
+		int case_sm;
+		int case_string;
+		for(case_sm = 0; case_sm<20; case_sm++){//parcours de la mémoire partagée
+			sm_ptr[case_sm].number = -1;
+			for(case_string = 0; case_string<20; case_string++){
+				sm_ptr[case_sm].destination[case_string]=0;//bourrage avec 0s
+			}
+		}
+		printf("\033[1;31mÉcrivain\033[0m || Initialisation  mémoire partagée\n");
 
 		int cursor;
 		while(1)
 		{
-			read(descpipe[0],&received,sizeof(VOL));
-			printf("Écrivain || Reçu %d places pour %s\n",received.number,received.destination);	
+			read(descpipe[0],&received,sizeof(VOL)); //lecture tube
+			printf("\033[1;31mÉcrivain\033[0m || Reçu %d places pour %s\n",received.number,received.destination);
 
 			if(semctl(sem_id,0,GETVAL)<20){
 				for(cursor=0;cursor<20;cursor++){
 					if(sm_ptr[cursor].number == -1){
 						down(mutex_id);
-						printf("Écrivain || down mutex\n");
+						printf("\033[1;31mÉcrivain\033[0m || Down mutex\n");
 						sm_ptr[cursor].number = received.number;
-						strcpy(sm_ptr[cursor].destination,received.destination);
-						printf("Écrivain || Écriture mémoire partagée case : %d\n",cursor);
+						strcpy(sm_ptr[cursor].destination,received.destination);//copie de la destination dans la mémoire partagée
+						printf("\033[1;31mÉcrivain\033[0m || Écriture mémoire partagée case : %d\n",cursor);
 						up(sem_id);
-						printf("Écrivain || up sem %d \n",semctl(sem_id,0,GETVAL));
+						printf("\033[1;31mÉcrivain\033[0m || Up sémaphore %d \n",semctl(sem_id,0,GETVAL));
 						up(mutex_id);
-						printf("Écrivain || up mutex %d \n",semctl(mutex_id,0,GETVAL));
+						printf("\033[1;31mÉcrivain\033[0m || Up mutex %d \n",semctl(mutex_id,0,GETVAL));
 						break;
 					}
 				}
 
 			}
 			else{
-				printf("Écrivain || Mémoire partagée pleine\n");
-			}	
+				printf("\033[1;31mÉcrivain\033[0m || Mémoire partagée pleine\n");
+			}
 		}
 
 	}

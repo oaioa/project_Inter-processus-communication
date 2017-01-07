@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#lancement appli
+make
+gnome-terminal --geometry="55x20+0+0" -e ./lastminute

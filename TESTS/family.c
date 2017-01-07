@@ -6,10 +6,8 @@ void father_handler(int signo)
 		printf("DAD || SIGINT received\n");
 	}
 	if (signo == SIGUSR1){
-		printf("DAD || SIGUSR1 reçu cabron ! \n");
+		printf("DAD || SIGUSR1 reçu ! \n");
 	}		
-	//	printf("DAD || Sleep for 10s\n");
-	//	sleep(20);
 }
 void son_handler(int signo)
 {	
